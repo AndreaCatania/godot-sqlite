@@ -35,13 +35,14 @@ Array fast_parse_row(sqlite3_stmt *stmt) {
 				PackedByteArray arr;
 				int size = sqlite3_column_bytes(stmt, i);
 				arr.resize(size);
-				memcpy(arr.ptrw(), sqlite3_column_blob(stmt, i), size);
+				memcpy((void *)arr.ptr(), sqlite3_column_blob(stmt, i), size);
 				value = Variant(arr);
 				break;
 			}
 			case SQLITE_NULL: {
 				// Nothing to do.
-                        } break;
+				break;
+			}
 			default:
 				ERR_PRINT("This kind of data is not yet supported: " + itos(col_type));
 				break;
@@ -149,7 +150,6 @@ Array SQLiteQuery::get_columns() {
 }
 
 bool SQLiteQuery::prepare() {
-
 	ERR_FAIL_COND_V(stmt != nullptr, false);
 	ERR_FAIL_COND_V(db == nullptr, false);
 	ERR_FAIL_COND_V(query == "", false);
